@@ -45,5 +45,7 @@ class LoginView(ObtainAuthToken):
         token, created = Token.objects.get_or_create(user=user)
         return Response({
             'token': token.key, 
-            'email': user.email
-        })
+            'fullname': f"{user.first_name} {user.last_name}".strip(),
+            'email': user.email,
+            'user_id': user.id
+        }, status=status.HTTP_201_CREATED)
