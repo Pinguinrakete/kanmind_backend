@@ -11,7 +11,7 @@ class UserInfoSerializer(serializers.ModelSerializer):
         fields = ['id', 'email', 'fullname']
 
     def get_fullname(self, obj):
-        return f"{obj.first_name} {obj.last_name}"
+        return f"{obj.first_name} {obj.last_name}".strip()
     
 
 class BoardSerializer(serializers.ModelSerializer):
@@ -28,13 +28,21 @@ class BoardSerializer(serializers.ModelSerializer):
         members = validated_data.pop('members', [])
         user = self.context['request'].user
 
-        board = Boards.objects.create(owner_id=user, **validated_data)
-  
-        board.members.set(User.objects.filter(id__in=members + [user.id]))  # Owner wird automatisch hinzugefügt
-        board.member_count = len(members)
+        board = Boards.objects.create(owner=user, **validated_data)
+        board.members.set(User.objects.filter(id__in=members + [user.id]))
+        board.member_count = board.members.count()
         board.save()
-        
+
         return board
+
+
+class BoardSingleSerializer(serializers.ModelSerializer):
+    members = UserInfoSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Boards
+        fields = ['id', 'title', 'owner_id', 'members']
+        read_only_fields = ['id', 'title', 'owner_id', 'members']
 
 
 class TaskSerializer(serializers.ModelSerializer):
