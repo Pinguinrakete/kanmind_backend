@@ -5,6 +5,7 @@ from kanban_app.models import Boards, Tasks
 
 class UserInfoSerializer(serializers.ModelSerializer):
     fullname = serializers.SerializerMethodField()
+    email = serializers.EmailField(read_only=True)
 
     class Meta:
         model = User
@@ -36,20 +37,48 @@ class BoardSerializer(serializers.ModelSerializer):
         return board
 
 
-class BoardSingleSerializer(serializers.ModelSerializer):
-    members = UserInfoSerializer(many=True, read_only=True)
+class BoardPatchSerializer(serializers.ModelSerializer):
+    members = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True, required=False, write_only=True)
+    owner_data = UserInfoSerializer(source='owner', read_only=True)
+    members_data = UserInfoSerializer(source='members', many=True, read_only=True)
 
     class Meta:
         model = Boards
-        fields = ['id', 'title', 'owner_id', 'members']
-        read_only_fields = ['id', 'title', 'owner_id', 'members']
+        fields = ['id', 'title', 'members', 'owner_data', 'members_data']
+        read_only_fields = ['id', 'owner_data', 'members_data']
 
 
 class TaskSerializer(serializers.ModelSerializer):
     assignee = UserInfoSerializer(read_only=True)
     reviewer = UserInfoSerializer(read_only=True)
+    assignee_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), source='assignee', write_only=True
+    )
+    reviewer_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), source='reviewer', write_only=True
+    )
     
     class Meta:
         model = Tasks
-        fields = ['id','board', 'title', 'description', 'status', 'priority', 'assignee', 'reviewer', 'due_date', 'comments_count']
+        fields = ['id','board', 'title', 'description', 'status', 'priority', 'assignee', 'assignee_id', 'reviewer', 'reviewer_id', 'due_date']
+
+class TaskBoardSerializer(serializers.ModelSerializer):
+    assignee = UserInfoSerializer(read_only=True)
+    reviewer = UserInfoSerializer(read_only=True)
+    
+    class Meta:
+        model = Tasks
+        fields = ['id', 'title', 'description', 'status', 'priority', 'assignee', 'reviewer', 'due_date', 'comments_count']
+
+
+class BoardSingleSerializer(serializers.ModelSerializer):
+    members = UserInfoSerializer(many=True, read_only=True)
+    tasks = TaskBoardSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Boards
+        fields = ['id', 'title', 'owner_id', 'members', 'tasks']
+        read_only_fields = ['id', 'title', 'owner_id', 'members', 'tasks']
+
+
    

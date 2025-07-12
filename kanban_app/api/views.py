@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from .serializers import BoardSerializer, TaskSerializer, BoardSingleSerializer
+from .serializers import BoardSerializer, BoardPatchSerializer, BoardSingleSerializer, TaskSerializer
 
 class BoardsView(APIView):
     permission_classes = [IsAuthenticated] 
@@ -29,30 +29,31 @@ class BoardsSingleView(APIView):
         serializer = BoardSingleSerializer(board, context={'request': request})
         return Response(serializer.data)
 
-#     if request.method == 'GET':
-#         boards = Boards.objects.get(pk=pk)
-#         board_serializer = BoardSerializer(boards)
-#         tasks = Tasks.objects.all()
-#         tasks_serializer = TaskSerializer(tasks, many=True, context={'request': request})
-#         # return Response(serializer.data)    
-#         return Response({
-#         "hfgh": board_serializer.data,
-#         "tasks": tasks_serializer.data
-#     })
+    def patch(self, request, pk):
+        try:
+            board = Boards.objects.get(pk=pk)
+        except Boards.DoesNotExist:
+            return Response({"detail": "Board not found."}, status=status.HTTP_404_NOT_FOUND)
 
-#     if request.method == 'PATCH':
-#         boards = Boards.objects.get(pk=pk)
-#         boards = BoardSerializer(boards)
-#         serializer = BoardSerializer(boards, data=request.data, partial=True)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         else:
-#             return Response(serializer.errors)
+        serializer = BoardPatchSerializer(board, data=request.data, partial=True, context={'request': request})  
+        if serializer.is_valid():
+            board = serializer.save()
+            return Response(BoardPatchSerializer(board, context={'request': request}).data)
+            
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk):
+        try:
+            board = Boards.objects.get(pk=pk)
+        except Boards.DoesNotExist:
+            return Response({"detail": "Board not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        board.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TasksView(APIView):
-    permission_classes = [AllowAny] 
+    permission_classes = [IsAuthenticated] 
 
     def get(self, request):
         tasks = Tasks.objects.all()
@@ -60,23 +61,11 @@ class TasksView(APIView):
         return Response(serializer.data)    
     
     def post(self, request):
-        data = request.data.copy()
-
-        assignee_id = data.get('assignee')
-        reviewer_id = data.get('reviewer')
-
-        task = Tasks.objects.create(
-            board_id=data.get('board'),
-            title=data.get('title'),
-            description=data.get('description', ''),
-            status=data.get('status', 'to-do'),
-            priority=data.get('priority', 'medium'),
-            assignee_id=assignee_id,
-            reviewer_id=reviewer_id,
-            due_date=data.get('due_date')
-        )
-        serializer = TaskSerializer(task, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer = TaskSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            board = serializer.save()
+            return Response(TaskSerializer(board, context={'request': request}).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class TaskSingleView(APIView):
