@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from .serializers import BoardSerializer, BoardPatchSerializer, BoardSingleSerializer, TaskSerializer
+from .serializers import BoardSerializer, BoardPatchSerializer, BoardSingleSerializer, TaskSerializer, TaskReviewingAndAssignedToMeSerializer
 
 class BoardsView(APIView):
     permission_classes = [IsAuthenticated] 
@@ -50,6 +50,36 @@ class BoardsSingleView(APIView):
         
         board.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class EmailCheckView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        return Response({
+            'id': user.id,
+            'email': user.email,
+            'fullname': f"{user.first_name} {user.last_name}".strip(),
+        }, status=status.HTTP_200_OK)
+
+
+class AssignedToMeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        assignedTasks = Tasks.objects.filter(assignee=request.user)
+        serializer = TaskReviewingAndAssignedToMeSerializer(assignedTasks, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class ReviewingTasksView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        reviewingTasks = Tasks.objects.filter(reviewer=request.user)
+        serializer = TaskReviewingAndAssignedToMeSerializer(reviewingTasks, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TasksView(APIView):

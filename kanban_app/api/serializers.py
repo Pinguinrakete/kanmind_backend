@@ -48,6 +48,21 @@ class BoardPatchSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'owner_data', 'members_data']
 
 
+class TaskReviewingAndAssignedToMeSerializer(serializers.ModelSerializer):
+    assignee = UserInfoSerializer(read_only=True)
+    reviewer = UserInfoSerializer(read_only=True)
+    assignee_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), source='assignee', write_only=True
+    )
+    reviewer_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), source='reviewer', write_only=True
+    )
+    
+    class Meta:
+        model = Tasks
+        fields = ['id','board', 'title', 'description', 'status', 'priority', 'assignee', 'assignee_id', 'reviewer', 'reviewer_id', 'due_date','comments_count']
+
+
 class TaskSerializer(serializers.ModelSerializer):
     assignee = UserInfoSerializer(read_only=True)
     reviewer = UserInfoSerializer(read_only=True)
@@ -61,6 +76,7 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tasks
         fields = ['id','board', 'title', 'description', 'status', 'priority', 'assignee', 'assignee_id', 'reviewer', 'reviewer_id', 'due_date']
+
 
 class TaskBoardSerializer(serializers.ModelSerializer):
     assignee = UserInfoSerializer(read_only=True)
