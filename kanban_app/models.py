@@ -31,6 +31,7 @@ class Tasks(models.Model):
     reviewer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='reviewed_tasks')
     due_date = models.DateField(null=True, blank=True)
     comments_count = models.PositiveSmallIntegerField(default=0)
+    createdBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_tasks')
 
     def __str__(self):
         return self.title

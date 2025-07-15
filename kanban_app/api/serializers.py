@@ -47,6 +47,17 @@ class BoardPatchSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'members', 'owner_data', 'members_data']
         read_only_fields = ['id', 'owner_data', 'members_data']
 
+    def update(self, instance, validated_data):
+        members = validated_data.pop('members', None)
+        if members is not None:
+            instance.members.set(members)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
+
 
 class TaskReviewingAndAssignedToMeSerializer(serializers.ModelSerializer):
     assignee = UserInfoSerializer(read_only=True)
@@ -60,7 +71,7 @@ class TaskReviewingAndAssignedToMeSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Tasks
-        fields = ['id','board', 'title', 'description', 'status', 'priority', 'assignee', 'assignee_id', 'reviewer', 'reviewer_id', 'due_date','comments_count']
+        fields = ['id', 'board', 'title', 'description', 'status', 'priority', 'assignee', 'assignee_id', 'reviewer', 'reviewer_id', 'due_date','comments_count']
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -75,7 +86,11 @@ class TaskSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Tasks
-        fields = ['id','board', 'title', 'description', 'status', 'priority', 'assignee', 'assignee_id', 'reviewer', 'reviewer_id', 'due_date']
+        fields = ['id', 'board', 'title', 'description', 'status', 'priority', 'assignee', 'assignee_id', 'reviewer', 'reviewer_id', 'due_date']
+
+    def create(self, validated_data):
+        validated_data['createdBy'] = self.context['request'].user
+        return super().create(validated_data)
 
 
 class TaskBoardSerializer(serializers.ModelSerializer):
@@ -85,7 +100,7 @@ class TaskBoardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tasks
         fields = ['id', 'title', 'description', 'status', 'priority', 'assignee', 'reviewer', 'due_date', 'comments_count']
-
+  
 
 class BoardSingleSerializer(serializers.ModelSerializer):
     members = UserInfoSerializer(many=True, read_only=True)
@@ -95,6 +110,3 @@ class BoardSingleSerializer(serializers.ModelSerializer):
         model = Boards
         fields = ['id', 'title', 'owner_id', 'members', 'tasks']
         read_only_fields = ['id', 'title', 'owner_id', 'members', 'tasks']
-
-
-   
