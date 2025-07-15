@@ -3,14 +3,17 @@ from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from .permissions import IsBoardMemberOrOwner
 from rest_framework.response import Response
 from .serializers import BoardSerializer, BoardPatchSerializer, BoardSingleSerializer, TaskSerializer, TaskReviewingAndAssignedToMeSerializer
+from kanban_app.models import Boards, Tasks
+from django.db.models import Q
 
 class BoardsView(APIView):
-    permission_classes = [IsAuthenticated] 
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        boards = Boards.objects.all()
+        boards = Boards.objects.filter(Q(owner=request.user) | Q(members=request.user)).distinct()
         serializer = BoardSerializer(boards, many=True, context={'request': request})
         return Response(serializer.data)
 
@@ -26,18 +29,15 @@ class BoardsSingleView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, pk):
-        board = Boards.objects.get(pk=pk)
+        board = Boards.objects.filter(Q(owner=request.user) | Q(members=request.user)).distinct().get(pk=pk)
         serializer = BoardSingleSerializer(board, context={'request': request})
         return Response(serializer.data)
 
     def patch(self, request, pk):
         try:
-            board = Boards.objects.get(pk=pk)
+            board = Boards.objects.filter(Q(owner=request.user) | Q(members=request.user)).distinct().get(pk=pk)
         except Boards.DoesNotExist:
-            return Response({"detail": "Board not found."}, status=status.HTTP_404_NOT_FOUND)
-
-        if not (request.user == board.owner or request.user in board.members.all()):
-            return Response({"detail": "Not authorized."}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"detail": "Board not found or not authorized."}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = BoardPatchSerializer(board, data=request.data, partial=True, context={'request': request})  
         if serializer.is_valid():
@@ -50,7 +50,10 @@ class BoardsSingleView(APIView):
             board = Boards.objects.get(pk=pk)
         except Boards.DoesNotExist:
             return Response({"detail": "Board not found."}, status=status.HTTP_404_NOT_FOUND)
-        
+
+        if request.user != board.owner:
+            return Response({"detail": "Only the owner can delete this board."}, status=status.HTTP_403_FORBIDDEN)
+
         board.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
