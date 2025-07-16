@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from .serializers import BoardSerializer, BoardPatchSerializer, BoardSingleSerializer, TaskSerializer, TaskReviewingAndAssignedToMeSerializer
 from kanban_app.models import Boards, Tasks
 from django.db.models import Q
+from django.contrib.auth.models import User
 
 class BoardsView(APIView):
     permission_classes = [IsAuthenticated]
@@ -62,12 +63,19 @@ class EmailCheckView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
-        return Response({
-            'id': user.id,
-            'email': user.email,
-            'fullname': f"{user.first_name} {user.last_name}".strip(),
-        }, status=status.HTTP_200_OK)
+            email = request.query_params.get('email')
+            if not email:
+                return Response({'detail': 'Email query parameter is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                user = User.objects.get(email__iexact=email)
+                return Response({
+                    'id': user.id,
+                    'email': user.email,
+                    'fullname': f"{user.first_name} {user.last_name}".strip(),
+                }, status=status.HTTP_200_OK)
+            except User.DoesNotExist:
+                return Response({'detail': 'User with this email does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class AssignedToMeView(APIView):
@@ -92,12 +100,27 @@ class TasksView(APIView):
     permission_classes = [IsAuthenticated] 
 
     def post(self, request):
-        serializer = TaskSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            task = serializer.save()
-            return Response(TaskSerializer(task, context={'request': request}).data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+            board_id = request.data.get('board')
+            if not board_id:
+                return Response({"error": "Board-ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                board = Boards.objects.get(id=board_id)
+            except Boards.DoesNotExist:
+                return Response({"error": "Board does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+            if request.user != board.owner and request.user not in board.members.all():
+                return Response({"error": "Access denied. You are not a member of this board."},
+                                status=status.HTTP_403_FORBIDDEN)
+
+            serializer = TaskSerializer(data=request.data, context={'request': request})
+            if serializer.is_valid():
+                task = serializer.save()
+                return Response(TaskSerializer(task, context={'request': request}).data,
+                                status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 class TaskSingleView(APIView):
     permission_classes = [IsAuthenticated] 
