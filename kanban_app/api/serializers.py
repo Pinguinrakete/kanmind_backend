@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from kanban_app.models import Boards, Tasks
+from kanban_app.models import Boards, Tasks, Comments
 
 
 class UserInfoSerializer(serializers.ModelSerializer):
@@ -110,3 +110,16 @@ class BoardSingleSerializer(serializers.ModelSerializer):
         model = Boards
         fields = ['id', 'title', 'owner_id', 'members', 'tasks']
         read_only_fields = ['id', 'title', 'owner_id', 'members', 'tasks']
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Comments
+        fields = ['id', 'created_at', 'author', 'content']
+        read_only_fields = ['id', 'created_at', 'author']
+
+    def get_author(self, obj):
+        name = f"{obj.author.first_name} {obj.author.last_name}".strip()
+        return name or obj.author.username

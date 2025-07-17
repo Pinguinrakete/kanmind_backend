@@ -1,14 +1,14 @@
+from django.db.models import Q
+from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 from kanban_app.models import Boards, Tasks
+from .permissions import IsBoardMemberOrOwner, IsMemberOfTasksBoard
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from .permissions import IsBoardMemberOrOwner
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .serializers import BoardSerializer, BoardPatchSerializer, BoardSingleSerializer, TaskSerializer, TaskReviewingAndAssignedToMeSerializer
-from kanban_app.models import Boards, Tasks
-from django.db.models import Q
-from django.contrib.auth.models import User
+from .serializers import BoardSerializer, BoardPatchSerializer, BoardSingleSerializer, TaskSerializer, TaskReviewingAndAssignedToMeSerializer, CommentSerializer
 
 class BoardsView(APIView):
     permission_classes = [IsAuthenticated]
@@ -153,3 +153,30 @@ class TaskSingleView(APIView):
                 return Response(serializer.data)
             else:
                 return Response(serializer.errors, status=400)
+            
+
+class TaskCommentsView(APIView):
+    permission_classes = [IsAuthenticated, IsMemberOfTasksBoard] 
+
+    def get(self, request, task_id):
+        task = get_object_or_404(Tasks, id=task_id)
+        self.check_object_permissions(request, task.board)
+
+        comments = task.comments.all().order_by('-created_at')
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, task_id):
+        task = get_object_or_404(Tasks, id=task_id)
+
+        self.check_object_permissions(request, task)
+
+        serializer = CommentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(author=request.user, task=task)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+# class TasksCommentsSingleView(APIView):
+    # pass
