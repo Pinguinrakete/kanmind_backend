@@ -160,7 +160,7 @@ class TaskCommentsView(APIView):
 
     def get(self, request, task_id):
         task = get_object_or_404(Tasks, id=task_id)
-        self.check_object_permissions(request, task.board)
+        self.check_object_permissions(request, task)
 
         comments = task.comments.all().order_by('-created_at')
         serializer = CommentSerializer(comments, many=True)
@@ -168,7 +168,6 @@ class TaskCommentsView(APIView):
 
     def post(self, request, task_id):
         task = get_object_or_404(Tasks, id=task_id)
-
         self.check_object_permissions(request, task)
 
         serializer = CommentSerializer(data=request.data)
