@@ -1,8 +1,8 @@
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from kanban_app.models import Boards, Tasks
-from .permissions import IsBoardMemberOrOwner, IsMemberOfTasksBoard
+from kanban_app.models import Boards, Tasks, Comments
+from .permissions import IsBoardMemberOrOwner, IsMemberOfTasksBoard, IsCommentAuthor
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.views import APIView
@@ -177,5 +177,14 @@ class TaskCommentsView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-# class TasksCommentsSingleView(APIView):
-    # pass
+class TasksCommentsSingleView(APIView):
+    permission_classes = [IsAuthenticated, IsCommentAuthor]
+
+    def delete(self, request, task_id, comment_id):
+        task = get_object_or_404(Tasks, id=task_id)
+
+        comment = get_object_or_404(Comments, id=comment_id, task=task)
+        self.check_object_permissions(request, comment)
+
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
