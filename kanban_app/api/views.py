@@ -6,7 +6,7 @@ from .permissions import IsBoardMemberOrOwner, IsMemberOfTasksBoard, IsCommentAu
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from .serializers import BoardSerializer, BoardPatchSerializer, BoardSingleSerializer, TaskSerializer, TaskReviewingAndAssignedToMeSerializer, CommentSerializer
 
@@ -28,9 +28,16 @@ class BoardsView(APIView):
 
 class BoardsSingleView(APIView):
     permission_classes = [IsAuthenticated]
-
+    
     def get(self, request, pk):
-        board = Boards.objects.filter(Q(owner=request.user) | Q(members=request.user)).distinct().get(pk=pk)
+        if not request.user.is_authenticated:
+            return Response({"detail": "Not authenticated."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            board = Boards.objects.filter(Q(owner=request.user) | Q(members=request.user)).distinct().get(pk=pk)
+        except Boards.DoesNotExist:
+            return Response({"detail": "Board not found or access denied."}, status=status.HTTP_404_NOT_FOUND)
+
         serializer = BoardSingleSerializer(board, context={'request': request})
         return Response(serializer.data)
 
@@ -123,10 +130,11 @@ class TasksView(APIView):
 
 
 class TaskSingleView(APIView):
-    permission_classes = [IsAuthenticated] 
+    # permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny] 
 
-    def delete(self, request, pk):
-        task = Tasks.objects.get(pk=pk)
+    def delete(self, request, task_id):
+        task = Tasks.objects.get(pk=task_id)
 
         isTaskCreator = task.createdBy == request.user
         isBoardOwner = task.board.owner == request.user
@@ -138,9 +146,9 @@ class TaskSingleView(APIView):
         task.delete()
         return Response(serializer.data)
     
-    def patch(self, request, pk):
+    def patch(self, request, task_id):
             try:
-                task = Tasks.objects.get(pk=pk)
+                task = Tasks.objects.get(pk=task_id)
             except Tasks.DoesNotExist:
                 return Response({"detail": "Task not found."}, status=404)
 
