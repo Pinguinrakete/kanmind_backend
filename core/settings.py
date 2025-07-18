@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from corsheaders.defaults import default_headers
+from corsheaders.defaults import default_methods
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +28,6 @@ SECRET_KEY = 'django-insecure-&$x^r*f$ow@k07i2abz*e+2t7qc3ypzz(%#45(sqg9333&w1*h
 DEBUG = True 
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -55,12 +56,18 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'Authorization',
+    'Content-Type',
+]
+
 CORS_ALLOWED_ORIGINS = [
   'http://127.0.0.1:5500',
   'http://localhost:5500',
 ]
 
-CORS_ALLOW_METHODS = [
+CORS_ALLOW_ALL_ORIGINS = True 
+CORS_ALLOW_METHODS = list(default_methods) + [
     "DELETE",
     "GET",
     "OPTIONS",
