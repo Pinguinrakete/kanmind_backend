@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-&$x^r*f$ow@k07i2abz*e+2t7qc3ypzz(%#45(sqg9333&w1*h
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True 
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 # Application definition
 
@@ -50,15 +50,20 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware', 
+    # 'django.middleware.csrf.CsrfViewMiddleware', 
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_HEADERS = list(default_headers) + [
-    'Authorization',
-    'Content-Type',
+# CORS_ALLOW_HEADERS = list(default_headers) + [
+#     'Authorization',
+#     'Content-Type',
+# ]
+
+CSRF_TRUSTED_ORIGINS = [
+  'http://127.0.0.1:5500',
+  'http://localhost:5500',
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -66,15 +71,15 @@ CORS_ALLOWED_ORIGINS = [
   'http://localhost:5500',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True 
-CORS_ALLOW_METHODS = list(default_methods) + [
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-]
+# CORS_ALLOW_ALL_ORIGINS = True 
+# CORS_ALLOW_METHODS = list(default_methods) + [
+#     "DELETE",
+#     "GET",
+#     "OPTIONS",
+#     "PATCH",
+#     "POST",
+#     "PUT",
+# ]
 
 ROOT_URLCONF = 'core.urls'
 
@@ -155,11 +160,16 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ] 
+    ]
 }
 
-AUTHENTICATION_BACKENDS = [
-    'auth_app.api.authentication.EmailBackend',
-    'django.contrib.auth.backends.ModelBackend'
-]
+    # ,
+    # 'DEFAULT_AUTHENTICATION_CLASSES': [
+    #     'rest_framework.authentication.TokenAuthentication',
+    #     'rest_framework.authentication.SessionAuthentication',
+    # ] 
+
+# AUTHENTICATION_BACKENDS = [
+#     'auth_app.api.authentication.EmailBackend',
+#     'django.contrib.auth.backends.ModelBackend'
+# ]

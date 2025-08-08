@@ -6,7 +6,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import RegistrationSerializer, EmailAuthTokenSerializer
 
-
 class RegistrationView(APIView):
     permission_classes = [AllowAny]
 
@@ -15,24 +14,19 @@ class RegistrationView(APIView):
 
         data = {}
         if serializer.is_valid():
-                try:
-                    user = serializer.save()
-                    token, _ = Token.objects.get_or_create(user=user)
-                    data = {
-                        'token': token.key,
-                        'fullname': f"{user.first_name} {user.last_name}".strip(),
-                        'email': user.email,
-                        'user_id': user.id
-                    }
-                    return Response(data, status=status.HTTP_201_CREATED)
-                except Exception as e:
-                    return Response(
-                        {"error": "Internal Server Error", "details": str(e)},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                    )
+            saved_account = serializer.save()
+            token, create = Token.objects.get_or_create(user=saved_account)
+            data = {
+                'token': token.key,
+                'fullname': f"{saved_account.first_name} {saved_account.last_name}".strip(),
+                'email': saved_account.email,
+                'user_id': saved_account.id
+            }
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-  
+            data=serializer.errors
+
+        return Response(data, status=status.HTTP_201_CREATED)
+
 
 class LoginView(ObtainAuthToken):
     permission_classes = [AllowAny]
