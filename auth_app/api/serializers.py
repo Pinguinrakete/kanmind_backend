@@ -38,8 +38,12 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    password = serializers.CharField(write_only=True, style={'input_type': 'password'})
+    email = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['email', 'password']
 
     def validate(self, data):
         email = data.get('email')
@@ -51,24 +55,3 @@ class LoginSerializer(serializers.Serializer):
 
         data['user'] = user
         return data
-    
-
-class EmailAuthTokenSerializer(serializers.Serializer):
-    email = serializers.EmailField(label="Email")
-    password = serializers.CharField(label="Passwort", style={'input_type': 'password'}, trim_whitespace=False)
-
-    def validate(self, attrs):
-        email = attrs.get('email')
-        password = attrs.get('password')
-
-        if email and password:
-            user = authenticate(request=self.context.get('request'), email=email, password=password)
-            if not user:
-                msg = _('Invalid email or password.')
-                raise serializers.ValidationError(msg, code='authorization')
-        else:
-            msg = _('Both fields (email and password) are required.')
-            raise serializers.ValidationError(msg, code='authorization')
-
-        attrs['user'] = user
-        return attrs

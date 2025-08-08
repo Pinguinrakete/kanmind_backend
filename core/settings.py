@@ -162,14 +162,3 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ]
 }
-
-    # ,
-    # 'DEFAULT_AUTHENTICATION_CLASSES': [
-    #     'rest_framework.authentication.TokenAuthentication',
-    #     'rest_framework.authentication.SessionAuthentication',
-    # ] 
-
-# AUTHENTICATION_BACKENDS = [
-#     'auth_app.api.authentication.EmailBackend',
-#     'django.contrib.auth.backends.ModelBackend'
-# ]
