@@ -56,11 +56,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# CORS_ALLOW_HEADERS = list(default_headers) + [
-#     'Authorization',
-#     'Content-Type',
-# ]
-
 CSRF_TRUSTED_ORIGINS = [
   'http://127.0.0.1:5500',
   'http://localhost:5500',
@@ -70,16 +65,6 @@ CORS_ALLOWED_ORIGINS = [
   'http://127.0.0.1:5500',
   'http://localhost:5500',
 ]
-
-# CORS_ALLOW_ALL_ORIGINS = True 
-# CORS_ALLOW_METHODS = list(default_methods) + [
-#     "DELETE",
-#     "GET",
-#     "OPTIONS",
-#     "PATCH",
-#     "POST",
-#     "PUT",
-# ]
 
 ROOT_URLCONF = 'core.urls'
 
