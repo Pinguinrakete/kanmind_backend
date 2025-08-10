@@ -3,7 +3,14 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
+""" 
+This serializer handles the user registration process. 
 
+- Expects: full name, email, password, repeated password.
+- Validates that passwords match.
+- Splits full name into first and last name.
+- Creates a new user with hashed password.
+"""
 class RegistrationSerializer(serializers.ModelSerializer):
     fullname = serializers.CharField(write_only=True)
     repeated_password = serializers.CharField(write_only=True)
@@ -36,7 +43,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+""" 
+This serializer handles the user login process. 
 
+- Expects: email and password.
+- Authenticates user credentials.
+- Raises error if authentication fails.
+"""
 class LoginSerializer(serializers.Serializer):
     email = serializers.CharField(write_only=True)
     password = serializers.CharField(write_only=True)

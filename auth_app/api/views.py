@@ -5,6 +5,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import RegistrationSerializer, LoginSerializer
 
+""" 
+This handles the user registration. 
+
+Method: POST
+Accepts: full name, email, password, repeated password.
+Returns: user data on success or validation errors.
+"""
 class RegistrationView(APIView):
     permission_classes = [AllowAny]
 
@@ -26,6 +33,13 @@ class RegistrationView(APIView):
 
         return Response(data, status=status.HTTP_201_CREATED)
 
+"""
+This handles the user login.
+
+Method: POST
+Accepts: email and password.
+Returns: user data on success or authentication error.
+"""
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
