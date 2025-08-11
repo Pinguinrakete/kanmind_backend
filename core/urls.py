@@ -17,6 +17,25 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+"""
+Main URL configuration for the Django project.
+
+Endpoints:
+
+- /admin/  
+  Django admin interface.
+
+- /api-auth/  
+  Django REST Framework's built-in authentication views (login/logout).
+
+- /api/  
+  Includes URLs from the 'auth_app' application (user registration, login, etc.).
+
+- /api/  
+  Includes URLs from the 'kanban_app' application (boards, tasks, comments, etc.).
+
+Note: Both 'auth_app' and 'kanban_app' APIs are mounted under the same /api/ prefix.
+"""
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth', include('rest_framework.urls')),
