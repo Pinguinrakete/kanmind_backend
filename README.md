@@ -31,7 +31,7 @@ python manage.py createsuperuser
 python manage.py runserver  
 
 ## 4. Clone the repository for frontend:
-git clone https://github.com/Pinguinrakete/kanmind_frontend.git
+git clone https://github.com/Developer-Akademie-Backendkurs/project.KanMind.git
 
 # ![Authentication Icon](assets/icons/authentication.png) Authentication
 The API uses token-based authentication (TokenAuthentication). 
