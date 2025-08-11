@@ -6,12 +6,14 @@ This is a RESTful API for managing Kanban boards, tasks, and comments, featuring
     • Create and manage boards with multiple members
     • Create, update, delete tasks with assignees and reviewers
     • Commenting system on tasks
-    • Permissions ensuring board and task securit
+    • Permissions ensuring board and task security
+![Tech Stack Icon](https://img.icons8.com/ios-filled/24/000000/stack.png)  
 ## Tech Stack
     • Python 3.x
     • Django 4.x
     • Django REST Framework
     • SQLite / PostgreSQL (optional)
+![Installation Icon](https://img.icons8.com/ios-filled/24/000000/download--v1.png)  
 # Installation
 ## 1. Clone the repository:
 git clone https://github.com/Pinguinrakete/kanmind_backend.git
@@ -50,16 +52,19 @@ Only authenticated users with a valid token are granted access to the protected 
     • DELETE  /api/tasks/<id>/             ➤ Delete a task. 
     • GET     /api/tasks/assigned-to-me/   ➤ Get tasks assigned to the user. 
     • GET     /api/tasks/reviewing/        ➤ Get tasks the user is reviewing. 
-      
+
+![Comments Icon](https://img.icons8.com/ios-filled/24/000000/comments.png)        
 ## Comments
     • GET     /api/tasks/<id>/comments/        ➤ Get all comments for a task. 
     • POST    /api/tasks/<id>/comments/        ➤ Add a comment to a task. 
     • DELETE  /api/tasks/<id>/comments/<id>/   ➤ Delete a specific comment. 
-      
+
+![Permissions Icon](https://img.icons8.com/ios-filled/24/000000/key.png)        
 ## Permissions
     • Only authenticated users can access the API.
     • IsBoardMemberOrOwner
     • IsMemberOfTasksBoard
     • IsCommentAuthor
+![License Icon](https://img.icons8.com/ios-filled/24/000000/certificate.png)  
 ## License
 This project is intended exclusively for students of the Developer Akademie and is not licensed for public use or distribution. 
