@@ -23,12 +23,12 @@ python -m venv env
 source env/bin/activate
 ```
 ## 3. Install dependencies
-pip install -r requirements.txt
+pip install -r requirements.txt  
 
-pip install django-cors-headers
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver
+pip install django-cors-headers  
+python manage.py migrate  
+python manage.py createsuperuser  
+python manage.py runserver  
 
 ## 4. Clone the repository for frontend:
 git clone https://github.com/Pinguinrakete/kanmind_frontend.git
