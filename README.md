@@ -12,7 +12,7 @@ This is a RESTful API for managing Kanban boards, tasks, and comments, featuring
     • Django REST Framework
     • SQLite / PostgreSQL (optional)
 # Installation
-# 1. Clone the repository:
+## 1. Clone the repository:
 git clone https://github.com/Pinguinrakete/kanmind_backend.git
 ## 2. Create virtual environment
 python -m venv env
@@ -22,12 +22,15 @@ source env/bin/activate
 ## 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. Clone the repository for frontend:
+## 4. Clone the repository for frontend:
 git clone https://github.com/Pinguinrakete/kanmind_frontend.git
-Authentication
-The API uses token-based authentication (TokenAuthentication). Each API request must include a valid token in the HTTP header: 
-http
+
+# Authentication
+The API uses token-based authentication (TokenAuthentication). 
+Each API request must include a valid token in the HTTP header: 
+
 	Authorization: Token <your-token>
+
 Only authenticated users with a valid token are granted access to the protected endpoints. 
 # API Endpoints Documentations
 ## Authentication
