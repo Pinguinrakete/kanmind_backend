@@ -1,5 +1,6 @@
 # KanMind Backend
 This is a RESTful API for managing Kanban boards, tasks, and comments, featuring user authentication. It serves as the backend for the Kanmind frontend and was specifically developed to teach backend programming to students of the Developer Akademie. 
+![Features Icon](https://img.icons8.com/ios-filled/24/000000/gear.png) 
 ## Features
     • User registration and login
     • Create and manage boards with multiple members
