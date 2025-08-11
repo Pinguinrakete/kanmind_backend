@@ -44,7 +44,7 @@ Only authenticated users with a valid token are granted access to the protected 
     • POST    /api/login/            ➤ Log in a user (returns auth token). 
     • GET     /api/email-check/      ➤ Check if an email is already registered. 
 
-![Boards Icon](assets/icons/board.png)  
+![Boards Icon](/assets/icons/board.png)  
 ## Boards
     • GET     /api/boards/	        ➤ List all boards. 
     • POST    /api/boards/          ➤ Create a new board. 
@@ -52,7 +52,7 @@ Only authenticated users with a valid token are granted access to the protected 
     • PATCH   /api/boards/<id>/     ➤ Update board fields. 
     • DELETE  /api/boards/<id>/     ➤ Delete a board. 
 
-![Tasks Icon](assets/icons/task.png)  
+![Tasks Icon](/assets/icons/task.png)  
 ## Tasks
     • POST    /api/tasks/                  ➤ Create a new task. 
     • PATCH   /api/tasks/<id>/             ➤ Update a task. 
@@ -60,7 +60,7 @@ Only authenticated users with a valid token are granted access to the protected 
     • GET     /api/tasks/assigned-to-me/   ➤ Get tasks assigned to the user. 
     • GET     /api/tasks/reviewing/        ➤ Get tasks the user is reviewing. 
 
-![Comments Icon](assets/icons/comments.png)        
+![Comments Icon](/assets/icons/comments.png)        
 ## Comments
     • GET     /api/tasks/<id>/comments/        ➤ Get all comments for a task. 
     • POST    /api/tasks/<id>/comments/        ➤ Add a comment to a task. 
