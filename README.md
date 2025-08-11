@@ -14,13 +14,21 @@ This is a RESTful API for managing Kanban boards, tasks, and comments, featuring
 # ![Installation Icon](assets/icons/installation.png) Installation
 ## 1. Clone the repository:
 git clone https://github.com/Pinguinrakete/kanmind_backend.git
+```bash
+cd KanMind_Backend
+```
 ## 2. Create virtual environment
 python -m venv env
-
+```bash
 source env/bin/activate
-
+```
 ## 3. Install dependencies
 pip install -r requirements.txt
+
+pip install django-cors-headers
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
 
 ## 4. Clone the repository for frontend:
 git clone https://github.com/Pinguinrakete/kanmind_frontend.git
