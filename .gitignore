@@ -2,6 +2,10 @@
 # Database
 db.sqlite3
 
+# __pycache__
+auth_app/__pycache__/
+kanban_app/__pycache__/
+
 # Python virtual environments
 env/
 venv/
