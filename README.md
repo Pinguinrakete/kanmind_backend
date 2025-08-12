@@ -20,7 +20,7 @@ cd kanmind_backend
 ## 2. Create virtual environment
 python -m venv env
 ```bash
-source "env/bin/activate"
+source ".\env\Scripts\Activate"
 ```
 ## 3. Install dependencies
 pip install -r requirements.txt  
