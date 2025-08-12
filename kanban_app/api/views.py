@@ -109,6 +109,11 @@ class BoardsSingleView(APIView):
         if serializer.is_valid():
             board = serializer.save()
             return Response(BoardPatchSerializer(board, context={'request': request}).data)
+        
+        if 'members' in serializer.errors:
+            return Response(
+                {"detail": "Invalid request data. Some users may be invalid."}, status=status.HTTP_400_BAD_REQUEST)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request, pk):

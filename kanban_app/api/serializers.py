@@ -91,6 +91,13 @@ class BoardPatchSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'members', 'owner_data', 'members_data']
         read_only_fields = ['id', 'owner_data', 'members_data']
 
+    def validate_members(self, value):
+        user_ids = [user.id for user in value]
+        existing_ids = set(User.objects.filter(id__in=user_ids).values_list('id', flat=True))
+        if len(existing_ids) != len(user_ids):
+            raise serializers.ValidationError("Invalid request data. Some users may be invalid.")
+        return value
+
     def update(self, instance, validated_data):
         members = validated_data.pop('members', None)
         if members is not None:
