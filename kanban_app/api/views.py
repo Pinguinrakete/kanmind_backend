@@ -221,25 +221,25 @@ class TasksView(APIView):
     permission_classes = [IsAuthenticated] 
 
     def post(self, request):
-            board_id = request.data.get('board')
-            if not board_id:
-                return Response({"error": "Board-ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+        board_id = request.data.get('board')
+        if not board_id:
+            return Response({"error": "Board-ID is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-            try:
-                board = Boards.objects.get(id=board_id)
-            except Boards.DoesNotExist:
-                return Response({"error": "Board does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            board = Boards.objects.get(id=board_id)
+        except Boards.DoesNotExist:
+            return Response({"error": "Board does not exist."}, status=status.HTTP_404_NOT_FOUND)
 
-            if request.user != board.owner and request.user not in board.members.all():
-                return Response({"error": "Access denied. You are not a member of this board."},
-                                status=status.HTTP_403_FORBIDDEN)
+        if request.user != board.owner and request.user not in board.members.all():
+            return Response({"error": "Access denied. You are not a member of this board."},
+                            status=status.HTTP_403_FORBIDDEN)
 
-            serializer = TaskSerializer(data=request.data, context={'request': request})
-            if serializer.is_valid():
-                task = serializer.save()
-                return Response(TaskSerializer(task, context={'request': request}).data,
-                                status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = TaskSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            task = serializer.save()
+            return Response(TaskSerializer(task, context={'request': request}).data,
+                            status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 """
@@ -281,20 +281,20 @@ class TaskSingleView(APIView):
         return Response(serializer.data)
     
     def patch(self, request, task_id):
-            try:
-                task = Tasks.objects.get(pk=task_id)
-            except Tasks.DoesNotExist:
-                return Response({"detail": "Task not found."}, status=404)
+        try:
+            task = Tasks.objects.get(pk=task_id)
+        except Tasks.DoesNotExist:
+            return Response({"detail": "Task not found."}, status=404)
 
-            if request.user not in task.board.members.all():
-                raise PermissionDenied("You are not a member of this board and are not allowed to work on this task.")
+        if request.user not in task.board.members.all():
+            raise PermissionDenied("You are not a member of this board and are not allowed to work on this task.")
 
-            serializer = TaskSerializer(task, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            else:
-                return Response(serializer.errors, status=400)
+        serializer = TaskSerializer(task, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=400)
             
 """
 This handles retrieving and creating comments on a specific task.
@@ -327,7 +327,7 @@ class TaskCommentsView(APIView):
 
         comments = task.comments.all().order_by('-created_at')
         serializer = CommentSerializer(comments, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, task_id):
         task = get_object_or_404(Tasks, id=task_id)
@@ -360,9 +360,12 @@ class TasksCommentsSingleView(APIView):
 
     def delete(self, request, task_id, comment_id):
         task = get_object_or_404(Tasks, id=task_id)
-
         comment = get_object_or_404(Comments, id=comment_id, task=task)
         self.check_object_permissions(request, comment)
 
         comment.delete()
+
+        task.comments_count = task.comments.count()
+        task.save(update_fields=['comments_count'])
+        
         return Response(status=status.HTTP_204_NO_CONTENT)

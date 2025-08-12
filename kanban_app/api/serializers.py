@@ -189,7 +189,7 @@ class TaskSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Tasks
-        fields = ['id', 'board', 'title', 'description', 'status', 'priority', 'assignee', 'assignee_id', 'reviewer', 'reviewer_id', 'due_date']
+        fields = ['id', 'board', 'title', 'description', 'status', 'priority', 'assignee', 'assignee_id', 'reviewer', 'reviewer_id', 'comments_count', 'due_date']
 
     def create(self, validated_data):
         validated_data['createdBy'] = self.context['request'].user
@@ -266,7 +266,7 @@ Notes:
 - Used to post new comments or retrieve existing ones on tasks.
 """
 class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.SerializerMethodField()
+    author = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Comments
@@ -276,3 +276,12 @@ class CommentSerializer(serializers.ModelSerializer):
     def get_author(self, obj):
         name = f"{obj.author.first_name} {obj.author.last_name}".strip()
         return name or obj.author.username
+    
+    def create(self, validated_data):
+        comment = Comments.objects.create(**validated_data, author=self.context['request'].user)
+
+        task = comment.task
+        task.comments_count = task.comments.count()
+        task.save(update_fields=['comments_count'])
+
+        return comment
