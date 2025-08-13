@@ -88,13 +88,13 @@ class BoardsSingleView(APIView):
     permission_classes = [IsAuthenticated]
     
     def get(self, request, pk):
-        if not request.user.is_authenticated:
-            return Response({"detail": "Not authenticated."}, status=status.HTTP_401_UNAUTHORIZED)
-
         try:
-            board = Boards.objects.filter(Q(owner=request.user) | Q(members=request.user)).distinct().get(pk=pk)
+            board = Boards.objects.get(pk=pk)
         except Boards.DoesNotExist:
-            return Response({"detail": "Board not found or access denied."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": "Board not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if board.owner != request.user and request.user not in board.members.all():
+            return Response({"detail": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
 
         serializer = BoardSingleSerializer(board, context={'request': request})
         return Response(serializer.data)
