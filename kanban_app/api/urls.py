@@ -42,5 +42,5 @@ urlpatterns = [
     path('tasks/', TasksView.as_view()),
     path('tasks/<int:task_id>/', TaskSingleView.as_view(), name='tasks-detail'),
     path('tasks/<int:task_id>/comments/', TaskCommentsView.as_view()),
-    path('tasks/<int:task_id>/comments/<int:comment_id>', TasksCommentsSingleView.as_view(), name='tasks-comments-detail')
+    path('tasks/<int:task_id>/comments/<int:comment_id>/', TasksCommentsSingleView.as_view(), name='tasks-comments-detail')
 ]
