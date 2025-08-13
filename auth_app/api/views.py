@@ -18,7 +18,6 @@ class RegistrationView(APIView):
     def post(self, request):
         serializer = RegistrationSerializer(data=request.data)
 
-        data = {}
         if serializer.is_valid():
             saved_account = serializer.save()
             token, create = Token.objects.get_or_create(user=saved_account)
@@ -30,7 +29,7 @@ class RegistrationView(APIView):
             }
             return Response(data, status=status.HTTP_201_CREATED)
             
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST, content_type='application/json')
 
 """
 This handles the user login.
