@@ -285,7 +285,7 @@ class CommentSerializer(serializers.ModelSerializer):
         return name or obj.author.username
     
     def create(self, validated_data):
-        comment = Comments.objects.create(**validated_data, author=self.context['request'].user)
+        comment = Comments.objects.create(**validated_data)
 
         task = comment.task
         task.comments_count = task.comments.count()

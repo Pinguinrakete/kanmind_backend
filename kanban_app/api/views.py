@@ -328,7 +328,7 @@ POST /tasks/{task_id}/comments/
 Raises 404 if the task does not exist or 403 if permission check fails.
 """
 class TaskCommentsView(APIView):
-    permission_classes = [IsAuthenticated, IsMemberOfTasksBoard] 
+    permission_classes = [IsMemberOfTasksBoard] 
 
     def get(self, request, task_id):
         task = get_object_or_404(Tasks, id=task_id)
