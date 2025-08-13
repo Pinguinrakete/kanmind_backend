@@ -367,14 +367,17 @@ DELETE /tasks/{task_id}/comments/{comment_id}/
 class TasksCommentsSingleView(APIView):
     permission_classes = [IsAuthenticated, IsCommentAuthor]
 
-    def delete(self, request, task_id, comment_id):
+    def get_object(self, task_id, comment_id):
         task = get_object_or_404(Tasks, id=task_id)
         comment = get_object_or_404(Comments, id=comment_id, task=task)
-        self.check_object_permissions(request, comment)
+        self.check_object_permissions(self.request, comment)
+        return task, comment
+
+    def delete(self, request, task_id, comment_id):
+        task, comment = self.get_object(task_id, comment_id)
 
         comment.delete()
-
         task.comments_count = task.comments.count()
         task.save(update_fields=['comments_count'])
-        
+
         return Response(status=status.HTTP_204_NO_CONTENT)
