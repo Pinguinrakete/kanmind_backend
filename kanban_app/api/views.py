@@ -102,21 +102,27 @@ class BoardsSingleView(APIView):
 
     def patch(self, request, pk):
         try:
-            board = Boards.objects.filter(Q(owner=request.user) | Q(members=request.user)).distinct().get(pk=pk)
+            board = Boards.objects.get(pk=pk)
         except Boards.DoesNotExist:
-            return Response({"detail": "Board not found or not authorized."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": "Board not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = BoardPatchSerializer(board, data=request.data, partial=True, context={'request': request})  
+        if board.owner != request.user and request.user not in board.members.all():
+            return Response({"detail": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = BoardPatchSerializer(board, data=request.data, partial=True, context={'request': request})
+        
         if serializer.is_valid():
             board = serializer.save()
             return Response(BoardPatchSerializer(board, context={'request': request}).data)
         
         if 'members' in serializer.errors:
             return Response(
-                {"detail": "Invalid request data. Some users may be invalid."}, status=status.HTTP_400_BAD_REQUEST)
+                {"detail": "Invalid request data. Some users may be invalid."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     def delete(self, request, pk):
         try:
             board = Boards.objects.get(pk=pk)
