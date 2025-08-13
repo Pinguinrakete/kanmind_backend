@@ -4,10 +4,11 @@ from django.shortcuts import get_object_or_404
 from kanban_app.models import Boards, Tasks, Comments
 from .permissions import IsBoardMemberOrOwner, IsMemberOfTasksBoard, IsCommentAuthor
 from rest_framework import status
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from ..models import Tasks
 from .serializers import BoardSerializer, BoardPatchSerializer, BoardSingleSerializer, TaskSerializer, TaskReviewingAndAssignedToMeSerializer, CommentSerializer
 
 """
@@ -289,7 +290,7 @@ class TaskSingleView(APIView):
         try:
             task = Tasks.objects.get(pk=task_id)
         except Tasks.DoesNotExist:
-            return Response({"detail": "Task not found."}, status=404)
+            raise NotFound("Task not found.")
 
         if request.user not in task.board.members.all():
             raise PermissionDenied("You are not a member of this board and are not allowed to work on this task.")
