@@ -271,9 +271,8 @@ class TaskSingleView(APIView):
         if not (isTaskCreator or isBoardOwner):
             raise PermissionDenied("You are not allowed to delete this task.")
         
-        serializer = TaskSerializer(task)
         task.delete()
-        return Response(serializer.data)
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
     def patch(self, request, task_id):
         try:
