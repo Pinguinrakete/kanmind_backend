@@ -274,7 +274,10 @@ class TaskSingleView(APIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, task_id):
-        task = Tasks.objects.get(pk=task_id)
+        try:
+            task = Tasks.objects.get(pk=task_id)
+        except Tasks.DoesNotExist:
+            raise NotFound("Task not found.")
 
         isTaskCreator = task.createdBy == request.user
         isBoardOwner = task.board.owner == request.user
