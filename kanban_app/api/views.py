@@ -255,20 +255,6 @@ Permissions:
 - User must be authenticated.  
 - User must be the task creator or board owner to delete the task.  
 - User must be a board member to update the task.
-
-Methods:
-
-DELETE /tasks/{task_id}/  
-- Deletes the specified task if the user is the creator or board owner.  
-- Returns the deleted task data on success.  
-- Raises PermissionDenied if the user is not authorized.
-
-PATCH /tasks/{task_id}/  
-- Partially updates the specified task.  
-- Returns updated task data on success.  
-- Returns 404 if the task is not found.  
-- Raises PermissionDenied if the user is not a member of the board.  
-- Returns 400 on validation errors.
 """
 class TaskSingleView(APIView):
     permission_classes = [IsAuthenticated]
@@ -311,21 +297,6 @@ This handles retrieving and creating comments on a specific task.
 Permissions:  
 - User must be authenticated.  
 - User must be a member of the task's board (checked via IsMemberOfTasksBoard permission).
-
-Methods:
-
-GET /tasks/{task_id}/comments/  
-- Returns all comments for the specified task, ordered by newest first.  
-- Each comment includes ID, created_at timestamp, author (full name or username), and content.
-
-POST /tasks/{task_id}/comments/  
-- Accepts:  
-  - content (string)  
-- Creates a new comment on the specified task with the authenticated user as author.  
-- Returns the created comment data on success (201).  
-- Returns 400 on validation errors.
-
-Raises 404 if the task does not exist or 403 if permission check fails.
 """
 class TaskCommentsView(APIView):
     permission_classes = [IsMemberOfTasksBoard] 
@@ -354,15 +325,6 @@ This handles deleting a single comment on a task.
 Permissions:  
 - User must be authenticated.  
 - User must be the author of the comment (checked via IsCommentAuthor permission).
-
-Method:
-
-DELETE /tasks/{task_id}/comments/{comment_id}/  
-- Deletes the specified comment on the specified task.  
-- Returns 204 No Content on successful deletion.  
-- Returns 404 if the task or comment does not exist.  
-- Returns 403 if the user is not the comment author.
-
 """
 class TasksCommentsSingleView(APIView):
     permission_classes = [IsAuthenticated, IsCommentAuthor]
