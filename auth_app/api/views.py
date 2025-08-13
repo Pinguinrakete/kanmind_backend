@@ -28,10 +28,9 @@ class RegistrationView(APIView):
                 'email': saved_account.email,
                 'user_id': saved_account.id
             }
-        else:
-            data=serializer.errors
-
-        return Response(data, status=status.HTTP_201_CREATED)
+            return Response(data, status=status.HTTP_201_CREATED)
+            
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 """
 This handles the user login.
